@@ -1,0 +1,29 @@
+[Unit]
+Description=skydns2
+After=etcd.service docker.service flannel.service
+Requires=etcd.service docker.service flannel.service
+
+[Service]
+EnvironmentFile=-/data/ncf/conf/ncf.env
+TimeoutStartSec=0
+ExecStartPre=-/bin/sh /data/ncf/scripts/host-ip.sh
+ExecStartPre=-/usr/bin/docker kill skydns2
+ExecStartPre=-/usr/bin/docker rm skydns2
+#ExecStartPre=/usr/bin/docker pull skynetservices/skydns:${SKYDNS_VERSION}
+ExecStart=/bin/sh -c -a "docker run \
+        -p 53:53/tcp \
+        -p 53:53/udp \
+        --name skydns2 \
+        skynetservices/skydns:${SKYDNS_VERSION} \
+        -machines http://$(cat /run/ncf/host_ip):${ETCD_PORT} \
+        -addr 0.0.0.0:53 \
+        -domain ${DNS_DOMAIN} \
+        -nameservers ${DNS_NAMESERVER}"
+ExecStop=/usr/bin/docker stop skydns2
+
+Restart=on-failure
+RestartSec=5
+
+[X-Fleet]
+Global=true
+

@@ -1,0 +1,27 @@
+[Unit]
+Description=registrator
+After=docker.service flannel.service skydns2.service
+Requires=docker.service
+Requires=etcd.service
+Requires=flannel.service
+Requires=skydns2.service
+
+[Service]
+EnvironmentFile=-/data/ncf/conf/ncf.env
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill registrator
+ExecStartPre=-/usr/bin/docker rm registrator
+#ExecStartPre=/usr/bin/docker pull gliderlabs/registrator:${REGISTRATOR_VERSION}
+ExecStart=/bin/sh -c -a 'docker run \
+        --name registrator \
+        -v /var/run/docker.sock:/tmp/docker.sock \
+        --net=host \
+        gliderlabs/registrator:${REGISTRATOR_VERSION} \
+        --internal skydns2://$(cat /run/ncf/host_ip):${ETCD_PORT}${DNS_ETCD_FOLDER}/${DNS_ENVIRONMENT}'
+ExecStop=/usr/bin/docker stop registrator
+Restart=always
+RestartSec=3
+
+[X-Fleet]
+Global=true
+

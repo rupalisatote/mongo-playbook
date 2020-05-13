@@ -1,5 +1,4 @@
 ---
 MONGO_VERSION: 4.2.6
-volume_mount_path: /data/ncf/mongo/core
-mongo_db_file_name: mongo4-files
+mongo_db_file_path: /data/ncf/mongo/core/mongo4-files
 # vars file for mongo

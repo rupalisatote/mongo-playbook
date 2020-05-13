@@ -12,7 +12,7 @@ ExecStart=/bin/bash -c "/usr/bin/docker run \
         --name mongo%i \
         --env SERVICE_ID=mongo%i \
         -p 27017:27017 \
-        -v {{ volume_mount_path }}/{{ mongo_db_file_name }}/data:/data/db \
+        -v {{ mongo_db_file_path }}/data:/data/db \
         --dns=$(cat /run/ncf/dns_ip) \
         mongo:${MONGO_VERSION} \
         --replSet ${MONGO_REPLICASET_NAME}"
