@@ -1,0 +1,4 @@
+[dev]
+devas01 ansible_host=18.222.186.54
+devas02 ansible_host=18.219.223.94
+

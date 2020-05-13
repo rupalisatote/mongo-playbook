@@ -1,0 +1,27 @@
+[Unit]
+Description=MongoDB
+After=docker.service registrator.service
+Requires=docker.service
+
+[Service]
+EnvironmentFile=-/data/ncf/conf/ncf.env
+ExecStartPre=-/usr/bin/docker kill mongo%i
+ExecStartPre=-/usr/bin/docker rm mongo%i
+#ExecStartPre=/usr/bin/docker pull mongo:${MONGO_VERSION}
+ExecStart=/bin/bash -c "/usr/bin/docker run \
+        --name mongo%i \
+        --env SERVICE_ID=mongo%i \
+        -p 27017:27017 \
+        -v {{ volume_mount_path }}/{{ mongo_db_file_name }}/data:/data/db \
+        --dns=$(cat /run/ncf/dns_ip) \
+        mongo:${MONGO_VERSION} \
+        --replSet ${MONGO_REPLICASET_NAME}"
+ExecStop=/usr/bin/docker stop mongo%i
+
+Restart=on-failure
+RestartSec=5
+
+[X-Fleet]
+Conflicts=mongo@*.service
+MachineMetadata=Storage=1
+

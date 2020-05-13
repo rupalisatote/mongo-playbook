@@ -1,0 +1,51 @@
+---
+# tasks file for mongo
+- name: create ncf.env file
+  template:
+    src: ncf.env.j2
+    dest: //data/ncf/conf/ncf.env
+    owner: root
+    group: root
+    mode: 0644
+
+- name: create mongo.service in fleetservices
+  template:
+    src: mongo@.service.j2
+    dest: /data/ncf/fleetServices/mongo.service
+    owner: root
+    group: root
+    mode: 0644
+
+- name: create mongo@1.service in server 1
+  template:
+    src: mongo@.service.j2
+    dest: /var/run/fleet/units/mongo@1.service
+    owner: root
+    group: root
+    mode: 0644
+  when: inventory_hostname == play_hosts[0]
+
+- name: create mongo@2.service in server 2
+  template:
+    src: mongo@.service.j2
+    dest: /var/run/fleet/units/mongo@1.service
+    owner: root
+    group: root
+    mode: 0644
+  when: inventory_hostname != play_hosts[0]
+
+- name: stop mongodb
+  shell: sh stop-mongo.sh
+  args:
+    chdir: /data/ncf/scripts/fleet
+
+- pause: seconds=25
+
+- name: start mongodb
+  shell: sh start-mongo.sh
+  args:
+    chdir: /data/ncf/scripts/fleet
+       
+
+
+
