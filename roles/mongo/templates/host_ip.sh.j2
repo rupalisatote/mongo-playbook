@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# find host external IP address
+
+link=$(ip route show | grep ^default | awk '{print $NF}')
+addr=$(ip addr show dev $link | grep "^ *inet " | awk '{print $2}' | sed 's:/.*$::' )
+
+if [ ! -d /run/ncf ]
+then
+    mkdir -p /run/ncf
+fi
+
+echo $addr > /run/ncf/host_ip
+
+source /run/flannel/subnet.env
+echo ${FLANNEL_SUBNET%/*} > /run/ncf/dns_ip
+

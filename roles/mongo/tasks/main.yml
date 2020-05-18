@@ -8,19 +8,21 @@
     group: root
     mode: 0644
 
-- name: create host_ip and dns_ip file
-  file:
-    path: "{{ item }}"
-    state: touch
-  with_items:
-    - /run/ncf/dns_ip
-    - /run/ncf/host_ip
+    #- name: create host_ip and dns_ip file
+    #  file:
+    #    path: "{{ item }}"
+    #    state: touch
+    #  with_items:
+    #    - /run/ncf/dns_ip
+    #    - /run/ncf/host_ip
 
-- name: copy host_ip
-  copy: 
-    content: "{{ ansible_default_ipv4.address }}"
-    dest: /run/ncf/host_ip
-    remote_src: yes 
+- name: create host_ip.sh file
+  template:
+    src: host_ip.sh.j2
+    dest: /data/ncf/scripts
+    owner: root
+    group: root
+    mode: 0644   
 
 - name: create mongo.service in fleetservices
   template:
@@ -47,7 +49,6 @@
     group: root
     mode: 0644
   when: inventory_hostname != play_hosts[0]
-
        
 - name: create registrator.service
   template:
